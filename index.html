@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game of Thrones · Character Sigil</title>
+    <!-- Google Fonts for a medieval / dramatic feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Global reset and full-screen dark fantasy setting */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0b0b0e;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Montserrat', sans-serif;
+            padding: 2rem 1rem;
+            position: relative;
+            background-image: radial-gradient(circle at 20% 30%, #1a1a24 0%, #08080c 90%);
+        }
+
+        /* subtle "old parchment" texture overlay */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="1" stitchTiles="stitch"/></filter><rect width="100" height="100" filter="url(%23noise)" opacity="0.04"/></svg>');
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* main container – single stage */
+        .thrones-stage {
+            position: relative;
+            z-index: 10;
+            max-width: 1300px;
+            width: 100%;
+            background: rgba(12, 12, 16, 0.75);
+            backdrop-filter: blur(4px);
+            border: 1px solid #3e3a2c;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px #5f4e2e inset;
+            border-radius: 4px;
+            padding: 2.5rem 2rem 2rem;
+            transition: all 0.2s;
+        }
+
+        /* decorative corners */
+        .thrones-stage::before,
+        .thrones-stage::after {
+            content: "⚔️";
+            position: absolute;
+            font-size: 1.8rem;
+            color: #b89b6b;
+            opacity: 0.6;
+            text-shadow: 0 0 8px #000;
+        }
+
+        .thrones-stage::before {
+            top: -12px;
+            left: -12px;
+        }
+
+        .thrones-stage::after {
+            bottom: -12px;
+            right: -12px;
+        }
+
+        /* header */
+        .house-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #534b3a;
+            padding-bottom: 1rem;
+            position: relative;
+        }
+
+        .house-title h1 {
+            font-family: 'Cinzel', serif;
+            font-weight: 900;
+            font-size: clamp(2rem, 6vw, 3.6rem);
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #e4d7b9;
+            text-shadow: 0 0 10px #b8860b, 0 0 20px #3f2e1a, 0 2px 4px black;
+            line-height: 1.2;
+        }
+
+        .house-title p {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            letter-spacing: 4px;
+            color: #a58e5e;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            font-weight: 400;
+        }
+
+        /* character grid */
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        /* individual character card */
+        .character-card {
+            background: linear-gradient(145deg, #1b1b22 0%, #101014 100%);
+            border: 1px solid #4e4432;
+            border-radius: 4px;
+            padding: 1.5rem 0.8rem 0.8rem;
+            text-align: center;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7), 0 0 0 1px #2b271f inset;
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* subtle house sigil glow effect on hover */
+        .character-card:hover {
+            transform: translateY(-4px);
+            border-color: #b4955a;
+            box-shadow: 0 12px 20px -6px black, 0 0 0 1px #a8874a inset, 0 0 18px rgba(180, 140, 70, 0.3);
+        }
+
+        /* decorative lion / wolf / dragon emoji as subtle background */
+        .character-card::after {
+            content: "⚔";
+            position: absolute;
+            bottom: 4px;
+            right: 8px;
+            font-size: 2rem;
+            opacity: 0.08;
+            color: #d4b87a;
+            transform: rotate(15deg);
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .character-card:hover::after {
+            opacity: 0.18;
+        }
+
+        /* character name – main focus */
+        .character-name {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 1px;
+            color: #f0e6d2;
+            text-shadow: 0 2px 4px black;
+            margin-bottom: 0.3rem;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+
+        /* small title / house tag */
+        .character-house {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #b9a577;
+            font-weight: 400;
+            border-top: 1px solid #3e382b;
+            padding-top: 0.5rem;
+            margin-top: 0.4rem;
+            width: 80%;
+            font-family: 'Cinzel', serif;
+        }
+
+        /* subtle divider (iron throne style) */
+        .divider {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 1.8rem;
+            color: #8b7a58;
+            font-size: 1.4rem;
+            letter-spacing: 8px;
+            opacity: 0.7;
+        }
+
+        /* responsive */
+        @media (max-width: 650px) {
+            .thrones-stage {
+                padding: 1.5rem 1rem;
+            }
+
+            .character-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem;
+            }
+
+            .character-name {
+                font-size: 1rem;
+            }
+
+            .character-house {
+                font-size: 0.6rem;
+                letter-spacing: 1px;
+            }
+
+            .house-title h1 {
+                letter-spacing: 3px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .character-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* little footer - for atmosphere */
+        .stage-footer {
+            margin-top: 2rem;
+            text-align: center;
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            letter-spacing: 6px;
+            color: #5c4f38;
+            text-transform: uppercase;
+            border-top: 1px solid #2b271e;
+            padding-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="thrones-stage">
+        <!-- HEADER -->
+        <div class="house-title">
+            <h1>Game of Thrones</h1>
+            <p>⚔️  Characters of the Seven Kingdoms  ⚔️</p>
+        </div>
+
+        <!-- CHARACTER GRID (all names from the series) -->
+        <div class="character-grid">
+            <!-- Stark -->
+            <div class="character-card">
+                <div class="character-name">Jon Snow</div>
+                <div class="character-house">House Stark</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Arya Stark</div>
+                <div class="character-house">House Stark</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Sansa Stark</div>
+                <div class="character-house">House Stark</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Bran Stark</div>
+                <div class="character-house">House Stark</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Rickon Stark</div>
+                <div class="character-house">House Stark</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Eddard Stark</div>
+                <div class="character-house">House Stark</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Catelyn Stark</div>
+                <div class="character-house">House Stark</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Robb Stark</div>
+                <div class="character-house">House Stark</div>
+            </div>
+
+            <!-- Lannister -->
+            <div class="character-card">
+                <div class="character-name">Tyrion Lannister</div>
+                <div class="character-house">House Lannister</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Cersei Lannister</div>
+                <div class="character-house">House Lannister</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Jaime Lannister</div>
+                <div class="character-house">House Lannister</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Tywin Lannister</div>
+                <div class="character-house">House Lannister</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Joffrey Baratheon</div>
+                <div class="character-house">House Lannister</div>
+            </div>
+
+            <!-- Targaryen -->
+            <div class="character-card">
+                <div class="character-name">Daenerys Targaryen</div>
+                <div class="character-house">House Targaryen</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Viserys Targaryen</div>
+                <div class="character-house">House Targaryen</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Aegon Targaryen</div>
+                <div class="character-house">House Targaryen</div>
+            </div>
+
+            <!-- Baratheon -->
+            <div class="character-card">
+                <div class="character-name">Robert Baratheon</div>
+                <div class="character-house">House Baratheon</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Stannis Baratheon</div>
+                <div class="character-house">House Baratheon</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Renly Baratheon</div>
+                <div class="character-house">House Baratheon</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Gendry Baratheon</div>
+                <div class="character-house">House Baratheon</div>
+            </div>
+
+            <!-- Greyjoy -->
+            <div class="character-card">
+                <div class="character-name">Theon Greyjoy</div>
+                <div class="character-house">House Greyjoy</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Yara Greyjoy</div>
+                <div class="character-house">House Greyjoy</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Euron Greyjoy</div>
+                <div class="character-house">House Greyjoy</div>
+            </div>
+
+            <!-- Martell -->
+            <div class="character-card">
+                <div class="character-name">Oberyn Martell</div>
+                <div class="character-house">House Martell</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Doran Martell</div>
+                <div class="character-house">House Martell</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Ellaria Sand</div>
+                <div class="character-house">House Martell</div>
+            </div>
+
+            <!-- Tyrell -->
+            <div class="character-card">
+                <div class="character-name">Margaery Tyrell</div>
+                <div class="character-house">House Tyrell</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Olenna Tyrell</div>
+                <div class="character-house">House Tyrell</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Loras Tyrell</div>
+                <div class="character-house">House Tyrell</div>
+            </div>
+
+            <!-- Tarly -->
+            <div class="character-card">
+                <div class="character-name">Samwell Tarly</div>
+                <div class="character-house">House Tarly</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Randyll Tarly</div>
+                <div class="character-house">House Tarly</div>
+            </div>
+
+            <!-- Mormont -->
+            <div class="character-card">
+                <div class="character-name">Jorah Mormont</div>
+                <div class="character-house">House Mormont</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Lyanna Mormont</div>
+                <div class="character-house">House Mormont</div>
+            </div>
+
+            <!-- Clegane -->
+            <div class="character-card">
+                <div class="character-name">Sandor Clegane</div>
+                <div class="character-house">House Clegane</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Gregor Clegane</div>
+                <div class="character-house">House Clegane</div>
+            </div>
+
+            <!-- Bolton -->
+            <div class="character-card">
+                <div class="character-name">Ramsay Bolton</div>
+                <div class="character-house">House Bolton</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Roose Bolton</div>
+                <div class="character-house">House Bolton</div>
+            </div>
+
+            <!-- Other key characters -->
+            <div class="character-card">
+                <div class="character-name">Brienne of Tarth</div>
+                <div class="character-house">House Tarth</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Podrick Payne</div>
+                <div class="character-house">House Payne</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Davos Seaworth</div>
+                <div class="character-house">House Seaworth</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Melisandre</div>
+                <div class="character-house">Asshai</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Varys</div>
+                <div class="character-house">The Spider</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Petyr Baelish</div>
+                <div class="character-house">Littlefinger</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Bronn</div>
+                <div class="character-house">Blackwater</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Tormund Giantsbane</div>
+                <div class="character-house">Free Folk</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Ygritte</div>
+                <div class="character-house">Free Folk</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Gilly</div>
+                <div class="character-house">Free Folk</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Hodor</div>
+                <div class="character-house">House Stark</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Meera Reed</div>
+                <div class="character-house">House Reed</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Jojen Reed</div>
+                <div class="character-house">House Reed</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Daario Naharis</div>
+                <div class="character-house">Second Sons</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Missandei</div>
+                <div class="character-house">Naath</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Grey Worm</div>
+                <div class="character-house">Unsullied</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Jaqen H'ghar</div>
+                <div class="character-house">Faceless Men</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Syrio Forel</div>
+                <div class="character-house">Braavos</div>
+            </div>
+            <div class="character-card">
+                <div class="character-name">Osha</div>
+                <div class="character-house">Free Folk</div>
+            </div>
+        </div>
+
+        <!-- decorative divider -->
+        <div class="divider">⚔️ ✦ ⚔️</div>
+
+        <!-- footer line -->
+        <div class="stage-footer">
+            <span>❖  The North Remembers  ❖</span>
+        </div>
+    </div>
+</body>
+</html>
